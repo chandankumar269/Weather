@@ -6,6 +6,7 @@ function App() {
   const [suggestions, setSuggestions] = useState([]);
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState("");
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
 
   const API_KEY = "afd86a3b57d8f6717e51d997269d44e9";
 
@@ -55,74 +56,83 @@ function App() {
         setError("");
         setSuggestions([]);
       }
-    } catch (error) {
+    } catch {
       setError("Something went wrong");
     }
   };
 
   return (
-    <div className="container">
-      <h1>Weather App</h1>
+    <div className={`app ${isDarkTheme ? "dark-theme" : "light-theme"}`}>
+      <div className="container">
+        <div className="header">
+          <h1>Weather App</h1>
 
-      <div className="search-container">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Enter city name"
-            value={city}
-            onChange={(e) => fetchSuggestions(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                getWeather();
-              }
-            }}
-          />
-
-          <button onClick={() => getWeather()}>
-            Search
+          <button
+            className="theme-toggle"
+            type="button"
+            onClick={() => setIsDarkTheme((currentTheme) => !currentTheme)}
+          >
+            {isDarkTheme ? "Light Theme" : "Dark Theme"}
           </button>
         </div>
 
-        {suggestions.length > 0 && (
-          <ul className="suggestions">
-            {suggestions.map((item, index) => (
-              <li
-                key={index}
-                onClick={() => {
-                  setCity(item.name);
-                  setSuggestions([]);
-                  getWeather(item.name);
-                }}
-              >
-                 <strong>{item.name}</strong>
-                  {item.state ? `, ${item.state}` : ""}
-                  , {item.country}
-              </li>
-            ))}
-          </ul>
+        <div className="search-container">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Enter city name"
+              value={city}
+              onChange={(e) => fetchSuggestions(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  getWeather();
+                }
+              }}
+            />
+
+            <button onClick={() => getWeather()}>Search</button>
+          </div>
+
+          {suggestions.length > 0 && (
+            <ul className="suggestions">
+              {suggestions.map((item, index) => (
+                <li
+                  key={index}
+                  onClick={() => {
+                    setCity(item.name);
+                    setSuggestions([]);
+                    getWeather(item.name);
+                  }}
+                >
+                  <strong>{item.name}</strong>
+                  {item.state ? `, ${item.state}` : ""}, {item.country}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {error && <p className="error">{error}</p>}
+
+        {weather && (
+          <div className="weather-card">
+            <h2>{weather.name}</h2>
+
+            <img
+              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+              alt="weather"
+            />
+
+            <h3>{weather.main.temp}&deg;C</h3>
+
+            <p>{weather.weather[0].description}</p>
+
+            <p>Humidity: {weather.main.humidity}%</p>
+
+            <p>Wind Speed: {weather.wind.speed} m/s</p>
+          </div>
         )}
       </div>
-
-      {error && <p className="error">{error}</p>}
-
-      {weather && (
-        <div className="weather-card">
-          <h2>{weather.name}</h2>
-
-          <img
-            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
-            alt="weather"
-          />
-
-          <h3>{weather.main.temp} °C</h3>
-
-          <p>{weather.weather[0].description}</p>
-
-          <p>💧 Humidity: {weather.main.humidity}%</p>
-
-          <p>🌬 Wind Speed: {weather.wind.speed} m/s</p>
-        </div>
-      )}
     </div>
   );
 }
